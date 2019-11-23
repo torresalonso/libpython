@@ -286,3 +286,70 @@ def GS(matriz):
         for k in range(n):
             comb_lin_qs[k]=0
     imprimir_matriz(Q)
+    
+    
+def reduccion_GJ(matriz_aux):
+    i=0
+    j=0
+
+    reng_pivote = 0
+    col_pivote = 0
+    filas = len(matriz_aux)
+    while reng_pivote < filas:
+        pivote = matriz_aux[reng_pivote][col_pivote]
+
+        #si el pivote es 0, intercambiar renglón
+        if(pivote == 0):
+            intercambiar_rengones(matriz_aux, reng_pivote,col_pivote)
+            pivote = matriz_aux[reng_pivote][col_pivote]
+
+        #convertir el pivote en 1
+        if(pivote != 1):
+            multiplo_escalar(matriz_aux, reng_pivote,1/pivote)
+            pivote = matriz_aux[reng_pivote][col_pivote]
+
+        #convertir los elementos bajo el pivote en 0
+        for i in range(reng_pivote+1,filas):
+            if(matriz_aux[i][col_pivote]!=0):
+                sumar_multiplo_renglon(matriz_aux,reng_pivote,i,-(matriz_aux[i][col_pivote]/pivote))
+
+        #convertir los elementos sobre el pivote en 0
+        for i in range(reng_pivote - 1,-1,-1):
+            if(matriz_aux[i][col_pivote]!=0):
+                sumar_multiplo_renglon(matriz_aux,reng_pivote,i,-(matriz_aux[i][col_pivote]/pivote))
+
+        reng_pivote += 1
+        col_pivote += 1
+    return matriz_aux
+
+def min_cuad_poli(datos_x, datos_y, grado=1):
+    matriz_aux = [None] * (grado+1)
+    for i in range(grado+1):
+        matriz_aux[i] = [None] * (grado+2)
+
+    suma = 0
+
+    #calcular las sumas y armar la matriz de coeficientes
+    for i in range (len(matriz_aux)):
+        for j in range(len(matriz_aux)):
+            for k in range(n):
+                suma += datos_x[k]**(i+j)
+            matriz_aux[i][j]=suma
+            suma = 0
+    suma = 0
+
+    for i in range(len(matriz_aux)):
+        for k in range(n):
+            suma += datos_y[k]*(datos_x[k]**(i))
+        matriz_aux[i][grado+1] = suma
+        suma=0
+
+    print "Sistema de ecuaciones para ajustar la parábola:"
+    imprimir_matriz(matriz_aux)
+
+    print "Sistema de ecuaciones reducido:"
+    imprimir_matriz(reduccion_GJ(matriz_aux))
+    coef_regresion = []
+    for i in range(len(matriz_aux)):
+        coef_regresion.append(matriz_aux[i][grado+1])
+    return coef_regresion
